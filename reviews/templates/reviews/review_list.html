@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+{% load static %}
+<h3>レビュー一覧</h3>
+  {% for review in review_list %}
+      <article>
+          <h3> <a href="{% url 'reviews:review_detail' review.pk %}"> {{review.store_name}} </a></h3>
+          <p class="lead">{{ review.get_stars_display }} - {{ review.title }}</p>
+            <form action="{% url 'reviews:review_list' %}" method="POST">
+              {% csrf_token %}
+                <div class="progress mt-3" style="height: 20px; width:400px;">
+                  <div class="progress-bar bg-warning" role="progressbar" aria-valuenow={{ checked_number }} aria-valuemin="0" aria-valuemax={{ max_number }} >{{ checked_number }}人</div>
+                </div>
+                <br>
+              <button type="submit" name="pitched" value="nextpitch" class="btn btn-primary" aria-pressed="true">参加する</button><p>{{ checked_number }}人がチェックイン中</p>
+            </form>
+  
+      </article>
+
+  {% endfor %}
+  
+
+
+<a href = "{% url 'reviews:review_create' %}">口コミ作成ページへ</a>
+
+{% endblock %}

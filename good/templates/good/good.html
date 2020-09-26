@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<h2>周辺情報</h2>
+
+
+<h2>{{ checked.checked_number }}</h2>
+
+<form action="{% url 'good:count' %}" method="POST">
+  {% csrf_token %}
+    <div class="progress mt-3">
+      <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow={{ checked_number }} aria-valuemin="0" aria-valuemax="200">{{ checked_number }}人</div>
+    </div>
+  <button type="submit" name="pitched" value="nextpitch" class="btn btn-primary" aria-pressed="true">参加する</button><p>{{ checked_number }}人がチェックイン中</p>
+</form>
+    
+
+{% endblock %}
+
+<script>
+    var selectedUnits = 0.0;
+    $(".thumbnail").click(function(event){
+        var thisUnits = $(this).data(('units'));
+        var thisUnitsFloat = parseFloat(thisUnits);
+ 
+        selectedUnits = thisUnitsFloat + selectedUnits;
+        console.log("This  Units :" + thisUnitsFloat);
+        console.log("Total Units :" + selectedUnits);
+ 
+        var $bar = $(".bar");
+        // Minimum requirement is 12 units 
+        var percent = Math.round((selectedUnits/12)*100);
+        if(percent > 100) percent = 100;
+        $bar.width(percent + "%");
+        $bar.text(percent + "%");
+ 
+    });
+</script>

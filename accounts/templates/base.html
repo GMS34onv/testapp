@@ -1,0 +1,40 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'accounts/css/bootstrap.min.css' %}">
+    <title>{% if request.path != '/' %}{% block title %}{% endblock %} | {% endif %}コノユビトマレ</title>
+</head>
+<body>
+<div class="container">
+    <header class="p-3 mb-2 bg-warning text-white">
+        <nav class="navbar navbar-expand-md navbar-dark bg-warning navbar-fixed-top">
+         <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                <li class="nav-item active"><a href="{% url 'logout' %}" class="nav-link">Logout</a></li>
+                {% else %}
+                <li class="nav-item"><a href="{% url 'accounts:signup' %}" class="nav-link">Sign up</a></li>
+                <li class="nav-item"><a href="{% url 'login' %}" class="nav-link">Login</a></li>
+                {% endif %}
+            </ul>
+            </div>
+              <form class="form-inline">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+              </form>
+        </nav>
+        
+    </header>
+    <div class="content">
+         <div class="px-4 py-5">
+            {% block content %}{% endblock %}
+         </div>
+    </div>
+</div>
+</body>
+</html>

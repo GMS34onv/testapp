@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<h2>キーワードから探す</h2>
+
+{% if latest_facility_list %}
+
+    {% for facility in latest_facility_list %}
+        {% if facility.pk == facility.id %}
+       <a href="/maps/details/{{ facility.id }}/">{{ facility.facility_name }}</a>
+        {% endif %}
+    {% endfor %}
+
+
+<h2>{{ checked.checked_number }}</h2>
+    
+
+{% else %}
+    <p>No facilities are available.</p>
+{% endif %}
+
+{% endblock %}
