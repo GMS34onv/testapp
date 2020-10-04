@@ -4,20 +4,46 @@
 {% load static %}
 
       <article>
-          <h3> {{review.store_name}} </h3>
+          <h4> {{review.store_name}} </h4>
           <p class="lead">{{ review.get_stars_display }} - {{ review.title }}</p>
           {{ review.text | linebreaks }}
           <br>
             <form action="{% url 'reviews:review_list' %}" method="POST">
               {% csrf_token %}
                 <div class="progress mt-3" style="height: 20px; width:400px;">
-                  <div class="progress-bar bg-warning" role="progressbar" aria-valuenow={{ checked_number }} aria-valuemin="0" aria-valuemax={{ max_number }} >{{ checked_number }}人</div>
+                  <div class="progress-bar bg-warning" role="progressbar" aria-valuenow={{ review.checked_number }} aria-valuemin="0" aria-valuemax={{ max_number }} >{{ checked_number }}人</div>
                 </div>
                 <br>
-              <button type="submit" name="pitched" value="nextpitch" class="btn btn-primary" aria-pressed="true">参加する</button><p>{{ checked_number }}人がチェックイン中</p>
+              <button type="submit" name="pitched" value="nextpitch" class="btn btn-primary" aria-pressed="true">参加する</button><p>{{ review.checked_number }}人がチェックイン中</p>
             </form>
          
       </article>
+      
+
+      
+   　　<div class="container">
+   　　     <button type="button" class="btn btn-outline-primary mb-12" aria-pressed="true"><a href ="{% url 'reviews:review_update' review.pk %}">更新</a></button>
+          <button type="button" class="btn btn-primary mb-12" data-toggle="modal" data-target="#testModal">削除</button>
+      </div>
+            
+    <!-- ボタン・リンククリック後に表示される画面の内容 -->
+    　　<div class="modal fade" id="testModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+        　  <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <p class="modal-title" id="myModalLabel">{{review.store_name}} のレビューを削除します。よろしいですか。</p>
+        　           </div>            
+
+                    <form action="{% url 'reviews:review_delete' review.pk %}" method="POST">
+                      {% csrf_token %}
+             　     <button type="submit" name="pitched" value="nextpitch" class="btn btn-primary" aria-pressed="true">削除する</button>
+                    </form>
+                 <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+                </div>
+             </div><!-- end card-body -->
+         </div>
+
       
 {% endblock %}
 

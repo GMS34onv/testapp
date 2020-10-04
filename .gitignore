@@ -1,5 +1,7 @@
-
+staticfiles
+local_settings.py
+db.sqlite3
+*.py[co]
 *.pyc
 *.pyo
 __pycache__
-db.sqlite3

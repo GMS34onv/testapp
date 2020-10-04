@@ -11,45 +11,18 @@
     <link rel="stylesheet" href="{% static 'menu/css/bootstrap.min.css' %}">
     <title>{% if request.path != '/' %}{% block title %}{% endblock %} | {% endif %}コノユビトマレ</title>
 </head>
+
 <body>
-<div class="container">
-    <header class="p-3 mb-2 bg-warning text-white">
-        <nav class="navbar navbar-expand-md navbar-dark bg-warning navbar-fixed-top">
-          <a class="navbar-brand" href="#">
-                <img alt="コノユビトマレ" src="{% static 'menu/images/knoyubi.png' %}"　width="80" height="80">
-          </a>
-          <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="ナビゲーションの切替">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <button class=“navbar-toggle” data-toggle=“collapse” data-target=“.target”>
-             <span class=“icon-bar”></span>
-             <span class=“icon-bar”></span>
-             <span class=“icon-bar”></span>
-          </button>
-          
-         <div class="collapse navbar-collapse target" id="navbarNavDropdown">
-            <ul class="navbar-nav">
-                {% if user.is_authenticated %}
-                <li class="nav-item active"><a href="{% url 'logout' %}" class="nav-link active">Logout</a></li>
-                <li class="nav-item active"><a href="{% url 'menu:index' %}" class="nav-link active">Top</a></li>
-                <li class="nav-item dropdown"><a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" id="navbarDropdownMenuLink" aria-haspopup="true" aria-expanded="false">Menu</a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{% url 'maps:index' %}">現在地から探す</a>
-                        <a class="dropdown-item" href="{% url 'maps:area' %}">エリアから探す</a>
-                        <a class="dropdown-item" href="{% url 'maps:ranking' %}">ランキングから探す</a>
-                    </div><!-- ./dropdown-menu -->
-                </li>
- 
-                {% else %}
-                <li class="nav-item"><a href="{% url 'accounts:signup' %}" class="nav-link">Sign up</a></li>
-                <li class="nav-item"><a href="{% url 'login' %}" class="nav-link">Login</a></li>
-                {% endif %}
-            </ul>
-            </div>
-          <form class="form-inline">
-             <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+<div class="container-fluid">
+    <header class="p-3 mb-2 bg-warning text-white w-100 nav-justified">
+        <nav class="navbar navbar-expand-md navbar-dark bg-warning navbar-fixed-top fixed-top">
+        
+          <form class="form-inline" method="GET" action="{% url 'menu:search' %}">
+          <div class="col-xs-1">
+             <input class="form-control mr-sm-2" type="search" placeholder="検索したいエリア・施設名を入力" aria-label="Search" >
              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
           </form>
+          </div>
               
         </nav>
         
@@ -63,47 +36,53 @@
 
 
 <footer>
-<div class="container">
-   <nav class="navbar navbar-expand-md navbar-dark bg-secondary navbar-fixed-bottom">
 
-       <div class="collapse navbar-collapse" id="navbarNavDropdown">
-          <ul class="navbar-nav">
-               {% if user.is_authenticated %}
-                <div class="container">
-                  <div class="row">
-                    <div class="col-sm-3">
-                        <a href="/maps/">現在地から探す</a>
-                    </div>
-                    <div class="col-sm-3">
-                        <a href="/maps/">キーワードから探す</a>
-                    </div>
-                    <div class="col-sm-3">
-                        <a href="/maps/">ランキングから探</a>
-                    </div>
-                
-                    <div class="col-sm-3">
-                        <a href="/maps/">履歴から探す</a>
-                    </div>
-                            
-                    <p>Copyright 2010</p>
-       </div>
 
+<div class="pos-f-t">
+  <div class="collapse" id="navbarToggleExternalContent">
+    <div class="bg-dark p-4">
+    <nav class="navbar navbar-expand-md navbar-dark bg-first navbar-fixed-bottom">
+    <ul class = "w-100 nav-justified .border-top.border-bottom .border-info">
+
+                {% if user.is_authenticated %}
+                <div class="d-inline .border-top.border-bottom .border-info">
+                        <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
+                </div>
+                <div class="d-inline .border-top.border-bottom .border-info">
+                        <a href="{% url 'menu:index' %}" class="nav-item nav-link">Top</a>
+                </div>
+                <div class="d-inline">
+                        <a href="/maps/" class="nav-item nav-link">現在地から探す</a>
+                </div>
+                <div class="d-inline">
+                        <a href="/maps/" class="nav-item nav-link">キーワードから探す</a>
+                </div>
+                <div class="d-inline">
+                        <a href="/maps/ranking/" class="nav-item nav-link">ランキングから探</a>
+                </div>
+                <div class="d-inline">
+                        <a href="{% url 'reviews:review_list' %}" class="nav-item nav-link">募集中の施設から探す</a>
+                </div>
                 {% else %}
-                <li class="nav-item"><a href="{% url 'accounts:signup' %}" class="nav-link">Sign up</a></li>
-                <li class="nav-item"><a href="{% url 'login' %}" class="nav-link">Login</a></li>
+                <a href="{% url 'accounts:signup' %}" class="nav-link">Sign up</a>
+                <a href="{% url 'login' %}" class="nav-link">Login</a>
                 {% endif %}
-            </ul>
-            </div>
-        </nav>
+    </ul>
+    </nav>
+    </div>
+  </div>
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="d-inline">
+        <a class="navbar-brand" href="#">
+        <img alt="コノユビトマレ" src="{% static 'menu/images/knoyubi.png' %}"　width="80" height="80"> <small>Copyright © 2020 Konoyubi Inc. All Rights Reserved.</small></a>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </nav>
+</div>
 
 </footer>
 </div>
-
-
 </body>
-
-
-
-
-
 </html>

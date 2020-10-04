@@ -2,28 +2,51 @@
 {% load widget_tweaks %}
 {% block content %}
 {% load static %}
-<h2>現在地周辺の募集状況</h2>
+<h3>現在地周辺の募集状況</h3>
 
-    <div class="container-fluid" style="margin-top: 60px;">
-
-          <div class="card">
-            <div class="card-header"><h3>新着の募集</h3></div>
+<div class="container-fluid" style="margin-top: 20px;">
+   <div class="card">
+            <div class="card-header"><h4>新着の募集</h4></div>
        {% for review in review_list %}
               <div class="card-body p-3">
-          <h3> <a href="{% url 'reviews:review_detail' review.pk %}"> {{review.store_name}} </a></h3>
-            <form action="{% url 'reviews:review_list' %}" method="POST">
+          <h4> <a href="{% url 'reviews:review_detail' review.pk %}"> {{review.store_name}} </a></h4>
+                <div class="progress mt-3" style="height: 20px; width:400px;">
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: 50%;" aria-valuenow= {{ review.checked_number }} aria-valuemin="0" aria-valuemax={{max_number}}>{{ review.checked_number }}人</div>
+                </div>
+               <p>{{ review.checked_number }}人がチェックイン中</p>
+              <!-- モーダルを開くボタン・リンク -->
+            <div class="container">
+               <button type="button" class="btn btn-primary mb-12" data-toggle="modal" data-target="#testModal">詳細を見る</button>
+            </div>
+            
+    <!-- ボタン・リンククリック後に表示される画面の内容 -->
+    <div class="modal fade" id="testModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4　class="modal-title" id="myModalLabel">チェックイン状況</h4>
+                </div>            
+            
+            <form action="{% url 'menu:index' %}" method="POST">
               {% csrf_token %}
                 <div class="progress mt-3" style="height: 20px; width:400px;">
-                  <div class="progress-bar bg-warning" role="progressbar" style="width: 50%;" aria-valuenow= {{ checked_number }} aria-valuemin="0" aria-valuemax={{max_number}}>{{ checked_number }}人</div>
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: 50%;" aria-valuenow= {{ review.checked_number }} aria-valuemin="0" aria-valuemax={{max_number}}>{{ review.checked_number }}人</div>
                 </div>
-               <p>{{ checked_number }}人がチェックイン中</p>
+               <p>{{ review.checked_number }}人がチェックイン中</p>
               <button type="submit" name="pitched" value="nextpitch" class="btn btn-primary" aria-pressed="true">参加する</button>
             </form>
+                 <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+                </div>
              </div><!-- end card-body -->
-       {% endfor %}
-          </div><!-- end card -->
 
-    </div><!-- end container-fluid -->
+
+                </div>
+       　 </div>
+    　</div>
+       {% endfor %}
+    </div><!-- end card -->
+</div><!-- end container-fluid -->
 
 
 {% endblock %}

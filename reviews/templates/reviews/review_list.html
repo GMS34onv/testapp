@@ -2,10 +2,10 @@
 {% load widget_tweaks %}
 {% block content %}
 {% load static %}
-<h3>レビュー一覧</h3>
+<h4>レビュー一覧</h4>
   {% for review in review_list %}
       <article>
-          <h3> <a href="{% url 'reviews:review_detail' review.pk %}"> {{review.store_name}} </a></h3>
+          <h4> <a href="{% url 'reviews:review_detail' review.pk %}"> {{review.store_name}} </a></h4>
           <p class="lead">{{ review.get_stars_display }} - {{ review.title }}</p>
             <form action="{% url 'reviews:review_list' %}" method="POST">
               {% csrf_token %}
@@ -19,9 +19,6 @@
       </article>
 
   {% endfor %}
-  
-
-
 <a href = "{% url 'reviews:review_create' %}">口コミ作成ページへ</a>
 
 {% endblock %}

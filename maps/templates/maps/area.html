@@ -2,21 +2,27 @@
 {% load widget_tweaks %}
 {% block content %}
 <h2>周辺情報</h2>
-
-{% if latest_facility_list %}
-
-    {% for facility in latest_facility_list %}
-        {% if facility.pk == facility.id %}
-       <a href="/maps/details/{{ facility.id }}/">{{ facility.facility_name }}</a>
-        {% endif %}
-    {% endfor %}
-
-
-<h2>{{ checked.checked_number }}</h2>
-    
-
-{% else %}
-    <p>No facilities are available.</p>
-{% endif %}
-
+  <style>
+   #map-canvas {
+     width: 600px;
+     height: 400px;
+   }
+  </style>
+  <div id="map-canvas" width ="600px" height ="400px">ここにマップが表示されます</div>
+  
+   <script>
+      var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: -34.397, lng: 150.644},
+          zoom: 8
+        });
+      }
+      // InvalidValueError: initMap is not a functionの対応
+    window.onload = function () {
+    initMap();
+}
+    </script>
+ <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAG2NYvDpJOksdY6Fad95w7EpFMj7LIOMI&callback=initMap"
+    async defer></script>
 {% endblock %}

@@ -2,12 +2,17 @@
 {% load widget_tweaks %}
 {% block content %}
 {% load static %}
+<div class="container">
 <h3>新しいレビューの投稿</h3>
-  
+    <div class="form-group">
     <form action = "" method = "POST">
         {{form.as_p}}
+    </div>
+        {% if form.instance.pk %}
+            <p>{{ form.instance.created_at}}</p>
+        {% endif %}
         {% csrf_token %}
-        <button type = "submit">送信</button>
+        <button type = "submit" class = "btn btn-primary mb-12">送信</button>
     </form>
-
+</div>
 {% endblock %}

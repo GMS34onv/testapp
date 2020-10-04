@@ -33,6 +33,12 @@ class User(models.Model):
     )
     
     gender = models.CharField('性別', choices=GENDER, max_length=10)
+    
+class Participants(models.Model):
+    name = models.CharField('ユーザー名', max_length=255)
+    created_at = models.DateTimeField('作成日', default=timezone.now)
+#    facility = models.ForeignKey(Review, on_delete=models.CASCADE)
+    
 
 class Facilities(models.Model):
     STARS = (

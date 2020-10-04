@@ -6,3 +6,4 @@ class ReviewCreateForm(forms.ModelForm):
     class Meta:
         model = Review
         fields = '__all__'
+        exclude = ('created_at',)

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 # set the application namespace
@@ -7,7 +7,8 @@ app_name = 'menu'
  
 urlpatterns = [
     # ex: /maps/
-    path('', views.IndexView.as_view(),name="index"),
+    path('', views.IndexView,name="index"),
+    path('', views.search,name="search"),
     path('new/', views.PostView.as_view(),name="new_list"),
     
 ]
