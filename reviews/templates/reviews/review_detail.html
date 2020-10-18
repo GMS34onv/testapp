@@ -8,7 +8,7 @@
           <p class="lead">{{ review.get_stars_display }} - {{ review.title }}</p>
           {{ review.text | linebreaks }}
           <br>
-            <form action="{% url 'reviews:review_list' %}" method="POST">
+            <form action="{% url 'reviews:review_detail' review.pk %}" method="POST">
               {% csrf_token %}
                 <div class="progress mt-3" style="height: 20px; width:400px;">
                   <div class="progress-bar bg-warning" role="progressbar" aria-valuenow={{ review.checked_number }} aria-valuemin="0" aria-valuemax={{ max_number }} >{{ checked_number }}人</div>

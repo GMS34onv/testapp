@@ -15,10 +15,9 @@ class Review(models.Model):
         )
     
     store_name = models.CharField('店名', max_length=255)
-    title = models.CharField('タイトル', max_length=255)
     text = models.TextField('口コミテキスト', blank=True)
-    stars = models.IntegerField('星の数', choices=STARS)
     created_at = models.DateTimeField('作成日', default=timezone.now)
+    limit_date = models.DateTimeField('集合時間', default=timezone.now)
     checked_number = models.IntegerField(default=0)
     max_number = models.IntegerField(default=30)
     

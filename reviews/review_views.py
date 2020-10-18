@@ -2,10 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Review, Facilities, Participants
 from .forms import ReviewCreateForm
 from django.contrib.auth.models import User
-import time
 
 
 # Create your views here.
+
 
 def review_list(request):
     """participants = Review.objects.get(pk=1)
@@ -25,44 +25,20 @@ def review_list(request):
 
 
 def review_detail(request, pk):
-    review = Review.objects.get(pk=pk)
-
-    context = {
-        'review': review,
-        'checked_number': review.checked_number,
-        'max_number': review.max_number,
-    }
+    participants = Review.objects.get(pk=pk)
 
     if request.method == 'POST':
         # データの新規追加
-        review.checked_number += 1
-        review.save()
+        participants.checked_number += 1
+        participants.save()
 
+    context = {
+        'review_detail': get_object_or_404(Review, pk=pk),
+        'checked_number': Review.objects.get(pk=pk).checked_number,
+        'max_number': Review.objects.get(pk=pk).max_number,
+    }
 
     return render(request, 'reviews/review_detail.html', context)
-
-def review_detail_cancel(request, pk):
-    review = Review.objects.get(pk=pk)
-
-    if request.method == 'POST':
-        # データの新規追加
-        review.checked_number -= 1
-        review.save()
-
-   # return redirect('reviews/review_detail.html')
-
-
-def review_detail_wait(request, pk):
-    review = Review.objects.get(pk=pk)
-
-    context = {
-        'review': review,
-        'checked_number': review.checked_number,
-        'max_number': review.max_number,
-        'limit_date': review.limit_date,
-    }
-
-    return render(request, 'reviews/review_wait.html', context)
 
 
 def review_create(request):
