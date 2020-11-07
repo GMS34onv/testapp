@@ -1,1 +1,1 @@
-web: gunicorn konoyubitomare.wsgi --log-file -
+web: gunicorn testappmaeda.wsgi --log-file

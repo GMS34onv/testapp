@@ -9,7 +9,7 @@ app_name = 'maps'
 urlpatterns = [
     # ex: /maps/
     path('', views.IndexView.as_view(),name="index"),
-    path('area/', views.AreaView.as_view(), name='area'),
+    path('area/', views.AreaView, name='area'),
     path('ranking/', views.RankingView.as_view(), name='ranking'),
     path('keyword/', views.KeywordView.as_view(), name='keyword'),
     path('details/', views.DetailView.as_view(), name='details'),

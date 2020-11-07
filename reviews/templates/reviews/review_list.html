@@ -2,23 +2,38 @@
 {% load widget_tweaks %}
 {% block content %}
 {% load static %}
-<h4>レビュー一覧</h4>
-  {% for review in review_list %}
-      <article>
-          <h4> <a href="{% url 'reviews:review_detail' review.pk %}"> {{review.store_name}} </a></h4>
-            <p class="lead">{{ review.get_stars_display }} - {{ review.title }}</p>
-              <!--form action="{% url 'reviews:review_list' %}" method="POST">
-                {% csrf_token %}-->
-               <div class="progress mt-3" style="height: 20px; width:400px;">
-                <div class="progress-bar bg-warning" role="progressbar"aria-valuenow={{ review.checked_number }} aria-valuemin="0" aria-valuemax={{ max_number }} >{{ review.checked_number }}人</div>
-               </div>
-                    <br>
-                <!--button type="submit" name="pitched" value="nextpitch" class="btn btn-primary" aria-pressed="true">参加する</button><p>{{ checked_number }}人がチェックイン中</p-->
-              </form>
-  
-      </article>
 
-  {% endfor %}
-<a href = "{% url 'reviews:review_create' %}">口コミ作成ページへ</a>
 
+<div class="p-3">
+      <h5 class="text-secondary font-weight-bold"> 現在の募集中</h5>
+<a href= "{% url 'reviews:review_create' %}"><button type="button" class="btn btn-success btn">新しく募集する</button></a>
+</div>
+
+<div class="card-deck">
+{% for review in review_list %}
+<div class="row p-2">
+  <div class="col">
+    <div class="card h-100"  style="width: 20rem;">
+
+       <div class="card-header">
+         <h5>{{review.store_name}}</h5>
+        
+       </div>
+        <img class="card-img-top" src="{{ review.image1 }}"/>
+      <!-- <img class="card-img-top" src="{% static 'maps/images/usj.jpg' %}" alt="Card image cap"> -->
+      <div class="card-body">
+
+          <progress value={{ review.checked_number }} max={{review.max_number}} style="height: 30px; width:250px; color:orange; font-size:20 ; margin: auto;" ></progress> 
+          <h5 class="card-text">{{ review.checked_number }}人/{{ review.max_number }}人 がチェックイン中</h5>
+
+              <!-- モーダルを開くボタン・リンク -->
+           <a href="{% url 'reviews:review_detail' review.pk %}"><button type="button" class="btn btn-primary btn">詳細</button> </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endfor %}  
+</div>
 {% endblock %}

@@ -1,28 +1,754 @@
-{% extends 'base.html' %}
-{% load widget_tweaks %}
-{% block content %}
-<h2>周辺情報</h2>
-  <style>
-   #map-canvas {
-     width: 600px;
-     height: 400px;
-   }
-  </style>
-  <div id="map-canvas" width ="600px" height ="400px">ここにマップが表示されます</div>
-  
-   <script>
-      var map;
-      function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: -34.397, lng: 150.644},
-          zoom: 8
-        });
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <script src="{% static 'menu/js/jquery-3.5.1.min.js' %}"></script>
+    <script src="{% static 'menu/js/bootstrap.bundle.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'menu/css/bootstrap.min.css' %}">
+    <script src="{% static 'menu/js/shards.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'maps/css/modal.css' %}">
+    <link rel="stylesheet" href="{% static 'menu/css/shards.min.css' %}">
+    <title>{% if request.path != '/' %}{% block title %}{% endblock %} | {% endif %}コノユビトマレ</title>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding:0;
       }
-      // InvalidValueError: initMap is not a functionの対応
-    window.onload = function () {
-    initMap();
-}
-    </script>
- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAG2NYvDpJOksdY6Fad95w7EpFMj7LIOMI&callback=initMap"
-    async defer></script>
-{% endblock %}
+    </style>
+</head>
+
+<body>
+<div class="container-fluid">
+<header class="p-2 bg-warning text-white w-100 nav-justified">
+<div class="pos-f-t">
+  <nav class="navbar navbar-dark bg-warning">
+    <div class="d-inline">
+           <form class="form-inline" action="{% url 'menu:search' %} " method="get">
+               <input style="width:400px;" class="form-control mr-4" name="query" placeholder="検索したいエリア・施設名を入力" aria-label="Search" value="{{ request.GET.query }}" type="search">
+               <button class="btn btn-outline-success my-2 my-sm-0" type="submit" >Search</button>
+           </form>
+    </div>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </nav>
+
+    <div class="collapse" id="navbarToggleExternalContent">
+    <div class="bg-warning">
+    <nav class="navbar navbar-expand-md navbar-warning bg-first navbar-fixed-top">
+    <ul class = "w-100 nav-justified .border-top.border-bottom .border-info">
+
+                {% if user.is_authenticated %}
+
+                <div class="navbar-nav">
+                  <a class="nav-item nav-link active text-white font-weight-bolder" href="{% url 'menu:index' %}">Top <span class="sr-only"><span class="badge badge-secondary">10</span>(current)</span></a>
+                  <a class="nav-item nav-link text-white font-weight-bolder" href="/maps/area/">MAP</a>
+                  <a class="nav-item nav-link text-white font-weight-bolder" href="/maps/keyword/">Keyword</a>
+                  <a class="nav-item nav-link text-white font-weight-bolder" href="/maps/ranking/">Ranking</a>
+                  <a class="nav-item nav-link text-white font-weight-bolder" href="{% url 'reviews:review_list' %}">Now Open</a>
+                  <a class="nav-item nav-link text-white font-weight-bolder" href="{% url 'logout' %}">Logout</a>
+                </div>
+                            
+                {% else %}
+                <a href="{% url 'accounts:signup' %}" class="nav-link">Sign up</a>
+                <a href="{% url 'login' %}" class="nav-link">Login</a>
+                {% endif %}
+    </ul>
+    </nav>
+    </div>
+    </div>
+</div>
+</header>
+  <!-- TODO: Step 4A2: Add a generic sidebar -->
+  <!-- The slide-out panel for showing place details -->
+  <!-- Map appears here -->
+      <div class="px-5 py-4">
+      <h5 class="text-secondary font-weight-bold"> マップから探す</h5>
+
+         
+         <div class="row">
+                    <div class="col-xs-2 pr-3" >
+                     <input style="width:350px;" class="form-control form-inline" aria-label="Search"  type="search" size="45" id="search" placeholder="検索したい施設名を入力してください" />
+                    </div>
+                    <div class="col-xs-2" >
+                     <input type="button" class="btn btn-primary" size="55" value="検索" onClick="initMap()" />
+                     </div>
+                     <div class="col-xs-8" >
+                     </div>
+         </div>
+         <div class="row">
+           <div class="col-xs-4 py-3">
+                   <div id="map" style="width:600px; height:500px"></div>
+           </div>
+
+           <div class="col-xs-4" >
+                <ul style="list-style: none;" class="search-wrapper">
+                  <a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md0"><li class="pb-1" id="output0"></li></a>
+                  <a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md1"><li class="pb-1" id="output1"></li></a>
+                  <a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md2"><li class="pb-1" id="output2"></li></a>
+                 　<a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md3"><li class="pb-1" id="output3"></li></a>
+                  <a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md4"><li class="pb-1" id="output4"></li></a>
+                  <a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md5"><li class="pb-1" id="output5"></li></a>
+                  <a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md6"><li class="pb-1" id="output6"></li></a>
+                  <a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md7"><li class="pb-1" id="output7"></li></a>
+                  <a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md8"><li class="pb-1" id="output8"></li></a>
+                  <a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md9"><li class="pb-1" id="output9"></li></a>
+                  <a class="text-secondary font-weight-bold" data-toggle="modal" data-target="#md10"><li class="pb-1" id="output10"></li></a>
+                </ul>
+            </div> <!-- col-7 -->
+            <div class="col-xs-4" >
+            </div> <!-- col-7 -->            
+             
+             
+             
+             
+             
+           </div> <!-- row -->
+        </div>   <!-- all -->
+
+    
+    <!-- ボタン・リンククリック後に表示される画面の内容-- >
+
+<!-- Modal -->
+<div class="modal fade" id="md0" tabindex="-1" role="dialog" aria-labelledby="mdl0" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl0">Modal title0</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL0"></h5>
+      <h5 id="modal_address0">住所：</h5>
+      <img id="main-image0" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" >
+                {{ form.non_field_errors }}
+                <div class="field">
+                    {{ form.store_name.label_tag }}
+                    <span id="store_name0">{{ form.store_name  }}</span>
+                    <br>
+                    {{ form.limit_date.label_tag }}
+                     <span id="limit_date0">{{ form.limit_date  }}</span>
+                    {{ form.checked_number.label_tag }}
+                     <span id="max_number0">{{ form.checked_number  }}</span>     
+                                         
+                    {{ form.max_number.label_tag }}
+                     <span id="max_number0">{{ form.max_number  }}</span>              
+                    
+                    {{ form.store_price.label_tag }}
+                     <span id="store_price0">{{ form.store_price  }}</span>
+                    
+                    {{ form.image1.label_tag }}
+                     <span id="image1_0">{{ form.image1}}</span>
+                    
+                    {{ form.image2.label_tag }}
+                     <span id="image2_0">{{ form.image2}}</span>
+                     <br>
+                </div>
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="md1" tabindex="-1" role="dialog" aria-labelledby="mdl1" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl1">Modal title1</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL1">a</h5>
+      <h5 id="modal_address1">住所：</h5>
+      <img id="main-image1" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" enctype="multipart/form-data">
+              {{form.as_table}}
+              {% if form.instance.pk %}
+                  <p>{{ form.instance.created_at}}</p>
+              {% endif %}
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="md2" tabindex="-1" role="dialog" aria-labelledby="mdl2" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl2">Modal title2</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL2"></h5>
+      <h5 id="modal_address2">住所：</h5>
+      <img id="main-image2" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" enctype="multipart/form-data">
+              {{form.as_table}}
+              {% if form.instance.pk %}
+                  <p>{{ form.instance.created_at}}</p>
+              {% endif %}
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="md3" tabindex="-1" role="dialog" aria-labelledby="mdl3" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl3">Modal title3</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL3"></h5>
+      <h5 id="modal_address3">住所：</h5>
+      <img id="main-image3" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" enctype="multipart/form-data">
+              {{form.as_table}}
+              {% if form.instance.pk %}
+                  <p>{{ form.instance.created_at}}</p>
+              {% endif %}
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="md4" tabindex="-1" role="dialog" aria-labelledby="mdl4" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl4">Modal title4</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL4"></h5>
+      <h5 id="modal_address4">住所：</h5>
+      <img id="main-image4" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" enctype="multipart/form-data">
+              {{form.as_table}}
+              {% if form.instance.pk %}
+                  <p>{{ form.instance.created_at}}</p>
+              {% endif %}
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="md5" tabindex="-1" role="dialog" aria-labelledby="mdl5" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl5">Modal title5</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL5"></h5>
+      <h5 id="modal_address5">住所：</h5>
+      <img id="main-image5" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" enctype="multipart/form-data">
+              {{form.as_table}}
+              {% if form.instance.pk %}
+                  <p>{{ form.instance.created_at}}</p>
+              {% endif %}
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="md6" tabindex="-1" role="dialog" aria-labelledby="mdl6" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl6">Modal title6</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL6"></h5>
+      <h5 id="modal_address6">住所：</h5>
+      <img id="main-image6" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" enctype="multipart/form-data">
+              {{form.as_table}}
+              {% if form.instance.pk %}
+                  <p>{{ form.instance.created_at}}</p>
+              {% endif %}
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="md7" tabindex="-1" role="dialog" aria-labelledby="mdl7" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl7">Modal title7</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL7"></h5>
+      <h5 id="modal_address7">住所：</h5>
+      <img id="main-image7" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" enctype="multipart/form-data">
+              {{form.as_table}}
+              {% if form.instance.pk %}
+                  <p>{{ form.instance.created_at}}</p>
+              {% endif %}
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="md8" tabindex="-1" role="dialog" aria-labelledby="mdl8" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl8">Modal title8</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL8"></h5>
+      <h5 id="modal_address8">住所：</h5>
+      <img id="main-image8" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" enctype="multipart/form-data">
+              {{form.as_table}}
+              {% if form.instance.pk %}
+                  <p>{{ form.instance.created_at}}</p>
+              {% endif %}
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="md9" tabindex="-1" role="dialog" aria-labelledby="mdl9" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl9">Modal title9</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL9"></h5>
+      <h5 id="modal_address9">住所：</h5>
+      <img id="main-image9" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" enctype="multipart/form-data">
+              {{form.as_table}}
+              {% if form.instance.pk %}
+                  <p>{{ form.instance.created_at}}</p>
+              {% endif %}
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="md10" tabindex="-1" role="dialog" aria-labelledby="mdl10" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mdl10">Modal title10</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <h5 id="modal_URL10"></h5>
+      <h5 id="modal_address10">住所：</h5>
+      <img id="main-image10" src="./images/landscape.jpg" width="300px " height="250px">
+         <div class="form-group">
+          <form action = "" method = "POST" enctype="multipart/form-data">
+              {{form.as_table}}
+              {% if form.instance.pk %}
+                  <p>{{ form.instance.created_at}}</p>
+              {% endif %}
+              {% csrf_token %}
+            <button type = "submit" class = "btn btn-primary">登録</button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+        <button type="button" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <script>
+    /* Note: This example requires that you consent to location sharing when
+     * prompted by your browser. If you see the error "Geolocation permission
+     * denied.", it means you probably did not give permission for the browser * to locate you. */
+    let pos;
+    let map;
+    let bounds;
+    let infoWindow;
+    let currentInfoWindow;
+    let service;
+    let infoPane;
+    let myword;
+    
+    function initMap() {
+      // Initialize variables
+      bounds = new google.maps.LatLngBounds();
+      infoWindow = new google.maps.InfoWindow;
+      currentInfoWindow = infoWindow;
+      /* TODO: Step 4A3: Add a generic sidebar */
+      infoPane = document.getElementById('panel');
+      myword = document.getElementById("search");
+      // Try HTML5 geolocation
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          map = new google.maps.Map(document.getElementById('map'), {
+            center: pos,
+            zoom: 15,
+          });
+          
+
+          bounds.extend(pos);
+          map.setCenter(pos);
+
+          // Call Places Nearby Search on user's location
+          getNearbyPlaces(pos,myword);
+        }, () => {
+          // Browser supports geolocation, but user has denied permission
+          handleLocationError(true, infoWindow,myword);
+        });
+      } else {
+        // Browser doesn't support geolocation
+        handleLocationError(false, infoWindow,myword);
+      }
+    }
+
+    // Handle a geolocation error
+    function handleLocationError(browserHasGeolocation, infoWindow ,myword) {
+      // Set default location to Sydney, Australia
+      pos = { lat: -33.856, lng: 151.215 };
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: pos,
+        zoom: 15
+      });
+
+      // Display an InfoWindow at the map center
+      infoWindow.setContent(browserHasGeolocation ?
+        'Geolocation permissions denied. Using default location.' :
+        'Error: Your browser doesn\'t support geolocation.');
+      infoWindow.open(map);
+      currentInfoWindow = infoWindow;
+
+      // Call Places Nearby Search on the default location
+      getNearbyPlaces(pos,myword);
+    }
+
+    // Perform a Places Nearby Search Request
+    function getNearbyPlaces(position,myword) {
+      let request = {
+        location: position,
+        rankBy: google.maps.places.RankBy.DISTANCE,
+        keyword: myword.value,
+      };
+
+      service = new google.maps.places.PlacesService(map);
+      service.nearbySearch(request, nearbyCallback);
+    }
+
+    // Handle the results (up to 20) of the Nearby Search
+    function nearbyCallback(results, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        createMarkers(results);
+         for(var i = 0; i < results.length; i++){
+                    if(i < 20){
+                    
+                    var idt = "output"+ i;
+                    target = document.getElementById(idt);
+                    target.innerHTML =  results[i].name;
+                    
+                    var idl = "mdl"+ i;
+                    target = document.getElementById(idl);
+                    target.innerHTML =  results[i].name;
+                    
+                    
+                    var idu = "modal_URL"+ i;
+                    target = document.getElementById(idu);
+                    target.innerHTML =  results[i].formatted_phone_number;
+                    
+
+                   var idm = "main-image" + i;
+                   document.getElementById(idm).setAttribute('src',results[i].photos[0].getUrl());
+
+                   var ida = "modal_address"+ i;
+                   target = document.getElementById(ida);
+                   target.innerHTML = '住所：' + results[i].vicinity;
+                   
+                   
+                   target = document.getElementById("{{ form.store_name.id_for_label }}");
+                   target.setAttribute('value',results[i].name);     
+
+                   target = document.getElementById("{{ form.image1.id_for_label }}");
+                   target.setAttribute('value',results[i].photos[0].getUrl());  
+                   
+                    
+                    }
+         }
+      }
+    }
+
+    // Set markers at the location of each place result
+    function createMarkers(places) {
+      places.forEach(place => {
+        let marker = new google.maps.Marker({
+          position: place.geometry.location,
+          map: map,
+          title: place.name
+        });
+
+        /* TODO: Step 4B: Add click listeners to the markers */
+        // Add click listener to each marker
+        google.maps.event.addListener(marker, 'click', () => {
+          let request = {
+            placeId: place.place_id,
+            fields: ['name', 'formatted_address', 'geometry', 'rating',
+              'website', 'photos']
+          };
+
+          /* Only fetch the details of a place when the user clicks on a marker.
+           * If we fetch the details for all place results as soon as we get
+           * the search response, we will hit API rate limits. */
+          service.getDetails(request, (placeResult, status) => {
+            showDetails(placeResult, marker, status)
+          });
+        });
+
+        // Adjust the map bounds to include the location of this marker
+        bounds.extend(place.geometry.location);
+      });
+      /* Once all the markers have been placed, adjust the bounds of the map to
+       * show all the markers within the visible area. */
+      map.fitBounds(bounds);
+    }
+
+    /* TODO: Step 4C: Show place details in an info window */
+    // Builds an InfoWindow to display details above the marker
+    function showDetails(placeResult, marker, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+      
+        let firstPhoto = placeResult.photos[0];
+        let photo = document.createElement('img');
+        photo.classList.add('hero');
+        photo.src = firstPhoto.getUrl();
+        
+        let secondPhoto = placeResult.photos[1];
+        let photo2 = document.createElement('img');
+        photo2.classList.add('hero');
+        photo2.src = secondPhoto.getUrl();
+
+        let placeInfowindow = new google.maps.InfoWindow();
+        let rating = "None";
+        if (placeResult.rating) rating = placeResult.rating;
+        if (placeResult.website) Website = placeResult.website;
+        
+
+                
+        placeInfowindow.setContent('<div><strong><a href ='+ Website+ '>' + placeResult.name + '</a></strong><br>'+ placeResult.formatted_address + '<br>'+ placeResult.formatted_phone_number+ 
+          '</strong><br>' +  'Rating: ' + rating + '</div>'+'<img src='+photo.src+' width="300" height="200">'+photo.src);
+        placeInfowindow.open(marker.map, marker);
+        currentInfoWindow.close();
+        currentInfoWindow = placeInfowindow;
+        showPanel(placeResult);
+      } else {
+        console.log('showDetails failed: ' + status);
+      }
+    }
+
+    /* TODO: Step 4D: Load place details in a sidebar */
+    // Displays place details in a sidebar
+    function showPanel(placeResult) {
+      // If infoPane is already open, close it
+      if (infoPane.classList.contains("open")) {
+        infoPane.classList.remove("open");
+      }
+
+      // Clear the previous details
+      while (infoPane.lastChild) {
+        infoPane.removeChild(infoPane.lastChild);
+      }
+
+      /* TODO: Step 4E: Display a Place Photo with the Place Details */
+      // Add the primary photo, if there is one
+      if (placeResult.photos) {
+        let firstPhoto = placeResult.photos[0];
+        let photo = document.createElement('img');
+        photo.classList.add('hero');
+        photo.src = firstPhoto.getUrl();
+        infoPane.appendChild(photo);
+      }
+
+      // Add place details with text formatting
+      let name = document.createElement('h1');
+      name.classList.add('place');
+      name.textContent = placeResult.name;
+      infoPane.appendChild(name);
+      if (placeResult.rating) {
+        let rating = document.createElement('p');
+        rating.classList.add('details');
+        rating.textContent = `Rating: ${placeResult.rating} \u272e`;
+        infoPane.appendChild(rating);
+      }
+      let address = document.createElement('p');
+      address.classList.add('details');
+      address.textContent = placeResult.formatted_address;
+      infoPane.appendChild(address);
+      
+      if (placeResult.website) {
+        let websitePara = document.createElement('p');
+        let websiteLink = document.createElement('a');
+        let websiteUrl = document.createTextNode(placeResult.website);
+        websiteLink.appendChild(websiteUrl);
+        websiteLink.title = placeResult.website;
+        websiteLink.href = placeResult.website;
+        websitePara.appendChild(websiteLink);
+        infoPane.appendChild(websitePara);
+      }
+
+      // Open the infoPane
+      infoPane.classList.add("open");
+    }
+  </script>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAG2NYvDpJOksdY6Fad95w7EpFMj7LIOMI&libraries=places&callback=initMap">
+  </script>
+</body>
+
+</html>

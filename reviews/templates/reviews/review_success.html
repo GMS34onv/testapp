@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+{% load static %}
+<div class="container pt-5 mt-5 pb-5 mb-5"> 
+
+  <div class="row justify-content-center align-self-center pt-5 mt-5">
+    <div class="col-1">
+    </div>
+    <div class="col-10">
+      <div class="mx-auto">
+      </div>
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+  <div class="row justify-content-center align-self-center">
+    <div class="col-1">
+    </div>
+    <div class="col-10 pb-4">
+            <h1 class="text-center">コノユビトマッタ！</h1>
+            <p class="text-center">おめでとうございます！規定人数に達しましたので<br>チケットがご購入いただけます</p>
+
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+  <div class="row justify-content-center align-self-center">
+    <div class="col-3">
+    </div>
+    <div class="col-5 pb-5">
+        <div class="mx-auto center-block">
+                          <button type="button" class="btn btn-primary " aria-pressed="true" data-toggle="modal" data-target="#testModal">チケットを購入する</button>
+                          <button type="button" class="btn btn-outline-primary "><a href ="{% url 'reviews:review_list' %}">他の募集を探す</a></button>
+                          <button type="button" class="btn btn-outline-primary "><a href ="{% url 'menu:index' %}">トップへ戻る</a></button>
+        </div>    
+    </div>
+    <div class="col-3">
+    </div>
+  </div>
+</div>
+
+
+    <!-- ボタン・リンククリック後に表示される画面の内容 -->
+<div class="modal fade" id="testModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content p-4 m-3">
+             <div class="modal-header bg-light ">
+                <h5 id="myModalLabel">{{review.store_name}}</h5>
+             </div>
+              <h5 class="card-text">料金：{{ review.price }}</h5>
+              <h5 class="card-text">集合時間：{{ review.limit_date }}</h5>
+              
+              
+                  {% if charge %}
+                    <p>{{ amount }}円のお支払いが完了しました。</p>
+                    <br>
+                    <p>customer: {{ customer }}</p>
+                    <br>
+                    <p>Charge: {{ charge }}</p>
+                  {% else %}
+                    <form action="{% url 'pay:pay_view' %}" method="post">
+                      {% csrf_token %}
+                      <div>
+                      <label for="amount"><h5>支払額　：</h5></label>
+                        <input style="width:100px"　type="number" name="amount" id="amount" required>
+                      </div>
+                
+                      <script type="text/javascript" src="https://checkout.pay.jp" class="payjp-button" data-key="{{ public_key }}">
+                      </script>
+                    </form>
+                  {% endif %}
+              
+
+             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+             </div>
+       </div>
+   </div>   
+</div>
+
+
+
+      
+{% endblock %}
+
+

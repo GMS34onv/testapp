@@ -10,6 +10,8 @@
     <script src="{% static 'registration/js/jquery-3.5.1.min.js' %}"></script>
     <script src="{% static 'registration/js/bootstrap.bundle.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'registration/css/bootstrap.min.css' %}">
+    <script src="{% static 'menu/js/shards.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'menu/css/shards.min.css' %}">
     <title>{% if request.path != '/' %}{% block title %}{% endblock %} | {% endif %}コノユビトマレ</title>
 
 </head>
@@ -18,28 +20,63 @@
 
 
 
-<body class ="p-3 mt-2 bg-warning text-dark">
-<div class="d-flex align-items-center justify-content-center">
+<body class ="pt-5 mt-5 bg-warning text-dark">
 
-<div class="w-50 mt-5 p-5">
-<img src="{% static 'registration/images/icon.png' %}" class="img-fluid"  width="150" height="150">
-<img src="{% static 'registration/images/title_logo.png' %}" class="img-fluid"  width="700" height="700">
-</div>
-<br><br><br>
+<div class="container pt-5 mt-5"> 
+
+  <div class="row justify-content-center align-self-center pt-5 mt-5">
+    <div class="col-1">
+    </div>
+    <div class="col-10">
+      <div class="mx-auto">
+      </div>
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+  <div class="row justify-content-center align-self-center">
+    <div class="col-1">
+    </div>
+    <div class="col-10">
+      <div class="mx-auto">
+        <img src="{% static 'registration/images/icon.png' %}" width="150" height="150">
+        <img src="{% static 'registration/images/title_logo.png' %}" width="700" height="180">
+      </div>
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+  <div class="row justify-content-center align-self-center">
+    <div class="col-4">
+    </div>
+    <div class="col-4">
+        <div class="mx-auto center-block">
+            <h1 class="text-center">Logged Out</h1>
+            <p class="text-center">Thanks for spending some quality time with the Web site today.</p>
+
+            <br>
+            <button type="button" class="btn btn-outline-secondary btn-lg btn-block"><a href="{% url 'login' %}" class="text-white">Re-login</a></button>
+   
+
+        </div>    
+    
+    </div>
+    <div class="col-4">
+    </div>
+  </div>
 </div>
 
-<div class="d-flex align-items-center justify-content-center">
-<div>
 
-<div class="mx-auto" style="width: 600px;">
-<h1>Logged Out</h1>
-<p>Thanks for spending some quality time with the Web site today.</p>
-<p><a href="{% url 'login' %}">Log in again</a></p>
 
-</div>
-</form>
-</div>
-</div>
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>

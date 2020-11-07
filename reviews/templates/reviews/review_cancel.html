@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+{% load static %}
+
+
+<div class="container pt-5 mt-5 pb-5 mb-5"> 
+
+  <div class="row justify-content-center align-self-center pt-5 mt-5">
+    <div class="col-1">
+    </div>
+    <div class="col-10">
+      <div class="mx-auto">
+      </div>
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+  <div class="row justify-content-center align-self-center">
+    <div class="col-1">
+    </div>
+    <div class="col-10">
+            <h1 class="text-center">TIME OUT</h1>
+            <p class="text-center">残念ながら規定人数に達しませんでしたので<br>キャンセルされました</p>
+
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+  <div class="row justify-content-center align-self-center">
+    <div class="col-3">
+    </div>
+    <div class="col-6">
+        <div class="mx-auto center-block">
+                          <button type="button" class="btn btn-outline-primary " aria-pressed="true"><a href ="{% url 'menu:index' %}">トップへ戻る</a></button>
+                          <button type="button" class="btn btn-outline-primary "><a href ="{% url 'reviews:review_list' %}">他の募集を探す</a></button>
+        </div>    
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+</div>
+
+
+
+      
+{% endblock %}
+

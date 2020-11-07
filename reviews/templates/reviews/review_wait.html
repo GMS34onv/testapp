@@ -4,26 +4,40 @@
 {% load static %}
 
 
-      <article>     
-          <h4> {{review.store_name}} </h4>
-        　<h1>締め切り時間：{{review.limit_date}}</h1>
-        　<h3>集合時刻まで ：<span class="counter"></span></h3>
-          <h4>参加状況</h4>
-          <br>
-               <div class="progress mt-3" style="height: 50px; width:600px; font-size:20px;  "   >
-               <label ><progress value={{ review.checked_number }} max={{review.max_number}} style="height: 50px; width:400px; color:orange; font-size:30 ; margin: auto;" >{{ review.checked_number }}人</progress> 
-               {{ review.checked_number }}人/{{ review.max_number }}人中</label>
-               </div>
-      </article>
-      
-   　　<div class="container">
-   　　     <button type="button" class="btn btn-outline-primary mb-12" aria-pressed="true"><a href ="{% url 'reviews:review_update' review.pk %}">更新</a></button>
-           <form action="{% url 'reviews:review_detail_cancel' review.pk %}" method="POST">
-              {% csrf_token %}
-                 <button type="submit" class="btn btn-outline-primary mb-12" data-toggle="modal" data-target="#testModal">キャンセル</button>
-            </form>
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <h5 class="text-white">集合時間まで参加を募集しています</h5>
+</div>
+
+<div class="row p-2">
+  <div class="col">
+    <div class="card h-100"  style="width: 40rem;">
+
+      <div class="card-header">
+         <h4>{{review.store_name}}</h4>
       </div>
-            
+      <img class="card-img-top w-50" src="{{ review.image1 }}" alt="Card image cap"> 
+      <div class="card-body">
+
+          <h5>料金：{{ review.price }}</h5>
+         　<h5>締め切り時間：{{review.limit_date}}</h5>
+         　<h5>集合時刻まで ：<span class="counter"></span></h5>
+             <br>
+          <progress value={{ review.checked_number }} max={{review.max_number}} style="height: 50px; width:400px; color:orange; font-size:30 ;" ></progress> 
+          <h5>{{ review.checked_number }}人／{{ review.max_number }}人中</h5>
+          <form action="{% url 'reviews:review_detail_cancel' review.pk %}" method="POST" class="form-inline">
+              {% csrf_token %}
+          <div class="pt-2">
+             <button type="submit" class="btn btn-outline-primary mb-12" aria-pressed="true">キャンセル</button>
+          </div>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script language="JavaScript">
 //オブジェクト取得
@@ -46,17 +60,22 @@ var sec = today.getSeconds();
 //
 const tyear = {{review.limit_date.year}};
 const tmonth = {{review.limit_date.month}};
-const tday = {{review.limit_date.day}};
-const thour = {{review.limit_date.hour}} + 9;
+var tday = {{review.limit_date.day}};
+var thour = {{review.limit_date.hour}} + 9;
 const tmin = {{review.limit_date.minute}};
 const tsec = {{review.limit_date.second}};
 
 //ターゲット日時
 
+if (thour > 24) {
+thour = thour - 24;
+tday = tday + 1;
+}
+
 
 //分、時、日の秒数
 
-var dsec = thour*60*60 + tmin*60 + tsec - (hour*60*60 + min*60 + sec);
+var dsec = tday * 24*60*60 + thour*60*60 + tmin*60 + tsec - (day*24*60*60 + hour*60*60 + min*60 + sec);
 
 const Hour = Math.floor(dsec/(60*60));
 
@@ -87,10 +106,27 @@ counter.innerHTML = d4_Day+"日"+ d5_Hour + "時間" + d6_Minute + "分" + d7_Se
 
 //1秒ごとに実行
 setTimeout(nanNichi, 1000);
+
+setTimeout(function(){
+  window.location.href = "{% url 'reviews:review_detail_result' review.pk %}";
+}, dsec*1000);
+
+
+var max_num = {{review.max_number}};
+var checked_num = {{review.checked_number}};
+
+if (checked_num >= max_num) {
+  window.location.href = "{% url 'reviews:review_detail_result' review.pk %}";
+}
+
+
+
 }
 
 //関数実行
 nanNichi();
+
+
 
 </script>
 

@@ -1,4 +1,5 @@
 {% load static %}
+{% load widget_tweaks %}
 
 <!DOCTYPE html>
 <html>
@@ -9,26 +10,75 @@
     <script src="{% static 'menu/js/jquery-3.5.1.min.js' %}"></script>
     <script src="{% static 'menu/js/bootstrap.bundle.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'menu/css/bootstrap.min.css' %}">
-    <title>{% if request.path != '/' %}{% block title %}{% endblock %} | {% endif %}コノユビトマレ</title>
+    <script src="{% static 'menu/js/shards.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'menu/css/shards.min.css' %}">
+    <title>コノユビトマレ | Together shiyouze!!</title>
+        <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
 </head>
 
 <body>
 <div class="container-fluid">
-    <header class="p-3 mb-2 bg-warning text-white w-100 nav-justified">
-        <nav class="navbar navbar-expand-md navbar-dark bg-warning navbar-fixed-top fixed-top">
+<header class="p-3 bg-warning text-white w-100 nav-justified">
+
+<div class="pos-f-t">
+  <nav class="navbar navbar-dark bg-warning">
+    <div class="d-inline">
+           <form class="form-inline" action="{% url 'menu:search' %} " method="get">
+               <input style="width:400px;" class="form-control mr-4" name="query" placeholder="検索したいエリア・施設名を入力" aria-label="Search" value="{{ request.GET.query }}" type="search">
+               <button class="btn btn-outline-success my-2 my-sm-0" type="submit" >Search</button>
+           </form>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </nav>
+
+    <div class="collapse" id="navbarToggleExternalContent">
+    <div class="bg-warning">
+    <nav class="navbar navbar-expand-md navbar-warning bg-first navbar-fixed-top">
+    <ul class = "w-100 nav-justified .border-top.border-bottom .border-info">
+
+                {% if user.is_authenticated %}
+
+                <div class="navbar-nav">
+                  <a class="nav-item nav-link active" href="{% url 'menu:index' %}">Top <span class="sr-only">(current)</span></a>
+                  <a class="nav-item nav-link" href="/maps/area/">MAP</a>
+                  <a class="nav-item nav-link" href="/maps/keyword/">Keyword</a>
+                  <a class="nav-item nav-link" href="/maps/ranking/">Ranking</a>
+                  <a class="nav-item nav-link" href="{% url 'reviews:review_list' %}">Now Open</a>
+                  <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+                </div>
+                            
+                {% else %}
+                <a href="{% url 'accounts:signup' %}" class="nav-link">Sign up</a>
+                <a href="{% url 'login' %}" class="nav-link">Login</a>
+                {% endif %}
+    </ul>
+    </nav>
+    </div>
+  </div>
+  
+  
+</div>
         
-          <form class="form-inline" method="GET" action="{% url 'menu:search' %}">
-          <div class="col-xs-1">
-             <input class="form-control mr-sm-2" type="search" placeholder="検索したいエリア・施設名を入力" aria-label="Search" >
-             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-          </form>
-          </div>
-              
-        </nav>
         
-    </header>
+</header>
+    
+    
     <div class="content">
-         <div class="px-4 py-5">
+         <div class="px-3 py-3">
             {% block content %}{% endblock %}
          </div>
     </div>
@@ -38,51 +88,70 @@
 <footer>
 
 
-<div class="pos-f-t">
-  <div class="collapse" id="navbarToggleExternalContent">
-    <div class="bg-dark p-4">
-    <nav class="navbar navbar-expand-md navbar-dark bg-first navbar-fixed-bottom">
-    <ul class = "w-100 nav-justified .border-top.border-bottom .border-info">
-
-                {% if user.is_authenticated %}
-                <div class="d-inline .border-top.border-bottom .border-info">
-                        <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
-                </div>
-                <div class="d-inline .border-top.border-bottom .border-info">
-                        <a href="{% url 'menu:index' %}" class="nav-item nav-link">Top</a>
-                </div>
-                <div class="d-inline">
-                        <a href="/maps/" class="nav-item nav-link">現在地から探す</a>
-                </div>
-                <div class="d-inline">
-                        <a href="/maps/" class="nav-item nav-link">キーワードから探す</a>
-                </div>
-                <div class="d-inline">
-                        <a href="/maps/ranking/" class="nav-item nav-link">ランキングから探</a>
-                </div>
-                <div class="d-inline">
-                        <a href="{% url 'reviews:review_list' %}" class="nav-item nav-link">募集中の施設から探す</a>
-                </div>
-                {% else %}
-                <a href="{% url 'accounts:signup' %}" class="nav-link">Sign up</a>
-                <a href="{% url 'login' %}" class="nav-link">Login</a>
-                {% endif %}
-    </ul>
-    </nav>
-    </div>
-  </div>
   <nav class="navbar navbar-dark bg-dark">
     <div class="d-inline">
         <a class="navbar-brand" href="#">
         <img alt="コノユビトマレ" src="{% static 'menu/images/knoyubi.png' %}"　width="80" height="80"> <small>Copyright © 2020 Konoyubi Inc. All Rights Reserved.</small></a>
     </div>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
   </nav>
 </div>
 
 </footer>
 </div>
+
+    <!-- ボタン・リンククリック後に表示される画面の内容 -->
+    <div class="modal fade" id="LoginModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4　class="modal-title" id="myModalLabel">ログイン画面</h4>
+                </div>
+
+                    <div>
+                    {% if form.errors %}
+                    <p>Your username and password didn't match. Please try again.</p>
+                    {% endif %}
+
+                    {% if next %}
+                        {% if user.is_authenticated %}
+                        <p>Your account doesn't have access to this page. To proceed,
+                        please login with an account that has access.</p>
+                        {% else %}
+                        <p>Please login to see this page.</p>
+                        {% endif %}
+                    {% endif %}
+
+
+                    <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <table>
+                    <tr class="col-sm-9">
+                        <td>{{ form.username.label_tag }}</td>
+                        <td>{{ form.username }}</td>
+                    </tr>
+
+                    <tr class="col-sm-9">
+                        <td>{{ form.password.label_tag }}</td>
+                        <td>{{ form.password }}</td>
+                    </tr>
+
+
+                    </table>
+                    <div class="px-4 py-5">
+                    <input type="submit" class="btn btn-info btn-block" value="login" />
+                    <input type="hidden" class="btn btn-info btn-block" name="next" value="{{ next }}" />
+                    </div>
+                    </div>
+                    </form>
+                 <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+                </div>
+             </div><!-- end card-body -->
+                </div>
+       　 </div>
+    　</div>
+    <!-- END ボタン・リンククリック後に表示される画面の内容 -->
+
 </body>
 </html>
+

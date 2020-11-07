@@ -3,16 +3,18 @@
 {% block content %}
 {% load static %}
 <div class="container">
-<h3>新しいレビューの投稿</h3>
+<h4>募集の登録・変更</h4>
     <div class="form-group">
-    <form action = "" method = "POST">
-        {{form.as_p}}
+    <form action = "" method = "POST" enctype="multipart/form-data">
+        {{form.as_table}}
     </div>
         {% if form.instance.pk %}
             <p>{{ form.instance.created_at}}</p>
         {% endif %}
         {% csrf_token %}
-        <button type = "submit" class = "btn btn-primary mb-12">送信</button>
+        <button type = "submit" class = "btn btn-primary">登録</button>
+        <button type="button" class="btn btn-light"><a href ="{% url 'reviews:review_list' %}">戻る</a></button>
     </form>
 </div>
+
 {% endblock %}

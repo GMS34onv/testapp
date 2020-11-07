@@ -14,8 +14,8 @@
           <h3> <a href="{% url 'reviews:review_detail' review.pk %}"> {{review.store_name}} </a></h3>
             <form action="{% url 'reviews:count' %}" method="POST">
               {% csrf_token %}
-                <div class="progress mt-3" style="height: 20px; width:400px;">
-                  <div class="progress-bar bg-warning" role="progressbar" style="width: 50%;" aria-valuenow= {{ checked_number }} aria-valuemin="0" aria-valuemax={{max_number}}>{{ checked_number }}人</div>
+                <div class="progress progress-sm" style="width:400px;">
+                  <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow= {{ checked_number }} aria-valuemin="0" aria-valuemax={{max_number}}>{{ checked_number }}人</div>
                 </div>
                 <br>
               <button type="submit" name="pitched" value="nextpitch" class="btn btn-primary" aria-pressed="true">参加する</button><p>{{ checked_number }}人がチェックイン中</p>

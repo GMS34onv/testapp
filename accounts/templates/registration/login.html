@@ -11,63 +11,81 @@
     <script src="{% static 'registration/js/jquery-3.5.1.min.js' %}"></script>
     <script src="{% static 'registration/js/bootstrap.bundle.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'registration/css/bootstrap.min.css' %}">
+    <script src="{% static 'menu/js/shards.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'menu/css/shards.min.css' %}">
     <title>{% if request.path != '/' %}{% block title %}{% endblock %} | {% endif %}コノユビトマレ</title>
     
     <!-- ナビバー -->
     
 </head>
 
-<body class ="p-3 mt-2 bg-warning text-dark">
-<div class="d-flex align-items-center justify-content-center">
-<div class="w-50 mt-5 p-5">
-<img src="{% static 'registration/images/icon.png' %}" class="img-fluid"  width="150" height="150">
-<img src="{% static 'registration/images/title_logo.png' %}" class="img-fluid"  width="700" height="700">
+<body class ="pt-3 mt-3 bg-warning text-dark">
+
+<div class="container pt-5 mt-5"> 
+
+  <div class="row justify-content-center align-self-center pt-5 mt-5">
+    <div class="col-1">
+    </div>
+    <div class="col-10">
+      <div class="mx-auto">
+      </div>
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+  <div class="row justify-content-center align-self-center">
+    <div class="col-1">
+    </div>
+    <div class="col-10">
+      <div class="mx-auto">
+        <img src="{% static 'registration/images/icon.png' %}" width="150" height="150">
+        <img src="{% static 'registration/images/title_logo.png' %}" width="700" height="180">
+      </div>
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+  <div class="row justify-content-center align-self-center">
+    <div class="col-4">
+    </div>
+    <div class="col-4">
+        <div class="mx-auto center-block">
+        {% if form.errors %}
+        <p>Your username and password didn't match. Please try again.</p>
+        {% endif %}
+        
+        {% if next %}
+            {% if user.is_authenticated %}
+            <p>Your account doesn't have access to this page. To proceed,
+            please login with an account that has access.</p>
+            {% else %}
+            <p>Please login to see this page.</p>
+            {% endif %}
+        {% endif %}
+
+        
+        <form method="post" action="{% url 'login' %}" class= "center-block">
+        {% csrf_token %}
+
+
+           <h4>{{ form.username }}</h4>
+           <h4>{{ form.password }}</h4>
+
+            <br>
+            <input type="submit" class="btn btn-primary btn btn-block" value="login" />
+            <input type="hidden" class="btn btn-primary btn btn-block" name="next" value="{{ next }}" />
+            <br>
+            <button type="button" class="btn btn-info btn btn-block"><a href="{% url 'accounts:signup' %}"  class="text-white">Sign up</a></button>
+        
+        </form>
+        </div>    
+    
+    </div>
+    <div class="col-4">
+    </div>
+  </div>
 </div>
-<br><br><br>
-</div>
-
-<div class="d-flex align-items-center justify-content-center">
-<div>
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
-
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-{% endif %}
 
 
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
-<table>
-<tr class="col-sm-9">
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-
-
-
-<tr class="col-sm-9"> 
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-
-
-</table>
-<div class="px-4 py-5">
-<input type="submit" class="btn btn-info btn-block" value="login" />
-<input type="hidden" class="btn btn-info btn-block" name="next" value="{{ next }}" />
-<div class="d-flex align-items-center justify-content-center">
-<h5><a href="{% url 'accounts:signup' %}">Sign up</a></h5>
-</div>
-</div>
-</form>
-</div>
-</div>
 </body>
 </html>

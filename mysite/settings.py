@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import dj_database_url
+import payjp
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -48,6 +50,8 @@ INSTALLED_APPS = [
     'bootstrap4',
     'widget_tweaks',
     'social_django',
+    'pay.apps.PayConfig',
+    'scraping.apps.ScrapingConfig',
 ]
 
 MIDDLEWARE = [
@@ -152,27 +156,26 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-#db_from_env = dj_database_url.config(conn_max_age=500)
-#DATABASES['default'].update(db_from_env)
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
 
-DATABASES['default'] = dj_database_url.config()
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-ALLOWED_HOSTS = ['*']
-
-
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # ログイン後トップページにリダイレクト
 LOGIN_REDIRECT_URL = 'menu:index'
 LOGIN_URL = 'login'
 
-DEBUG = True
+#DEBUG = False
 
-try:
-    from .local_settings import *
-except ImportError:
-    pass
+#try:
+#    from .local_settings import *
+#except ImportError:
+#    pass
 
-if not DEBUG:
-    import django_heroku
-    django_heroku.settings(locals())
+#if not DEBUG:
+#    import django_heroku
+#    django_heroku.settings(locals())
+
+# PAY.JP設定
+payjp.api_key = "sk_test_a6ca7384b31549aa238ab5dd" # テスト用秘密鍵
